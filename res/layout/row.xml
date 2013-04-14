@@ -1,0 +1,51 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="fill_parent"
+    android:layout_height="?android:attr/listPreferredItemHeight"
+    android:padding="6dip">
+    <ImageView
+        android:id="@+id/icon"
+        android:layout_width="wrap_content"
+        android:layout_height="fill_parent"
+        android:layout_marginRight="6dip" />
+    <LinearLayout
+        android:orientation="vertical"
+        android:layout_width="0dip"
+        android:layout_weight="1"
+        android:layout_height="fill_parent">
+		
+		<LinearLayout
+		    android:layout_width="fill_parent"
+		    android:layout_height="22dp"
+		    android:layout_weight="1"
+		    android:orientation="horizontal" >
+
+	        <TextView
+	            android:id="@+id/toptext"
+	            android:layout_width="0dp"
+	            android:layout_height="wrap_content"
+	            android:layout_weight="1"
+	            android:gravity="center_vertical"
+	            android:singleLine="true" 
+            	android:ellipsize="marquee" />
+	        
+			<TextView
+			    android:id="@+id/timetext"
+			    android:layout_width="44dp"
+			    android:layout_height="wrap_content"
+			    android:layout_gravity="right"
+			    android:gravity="right"
+			    android:ellipsize="marquee" />
+
+		</LinearLayout>
+
+        <TextView
+            android:id="@+id/bottomtext"
+            android:layout_width="fill_parent"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:layout_gravity="bottom"
+            android:ellipsize="marquee" />
+
+    </LinearLayout>
+</LinearLayout>
