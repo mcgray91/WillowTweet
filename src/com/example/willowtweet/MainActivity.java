@@ -1,40 +1,49 @@
 package com.example.willowtweet;
 
+import java.io.IOException;
 import java.io.InputStream;
+import java.net.MalformedURLException;
 import java.net.URL;
 import java.util.ArrayList;
 import java.util.List;
 
-import twitter4j.Status;
 import twitter4j.Twitter;
 import twitter4j.TwitterException;
 import twitter4j.TwitterFactory;
+import twitter4j.User;
 import twitter4j.conf.ConfigurationBuilder;
+import twitter4j.util.TimeSpanConverter;
 import android.app.ListActivity;
 import android.app.ProgressDialog;
 import android.content.Context;
-import android.graphics.drawable.Drawable;
+import android.graphics.Bitmap;
+import android.graphics.BitmapFactory;
+import android.graphics.Color;
 import android.os.AsyncTask;
 import android.os.Bundle;
+import android.text.Spannable;
+import android.text.style.ForegroundColorSpan;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ArrayAdapter;
 import android.widget.ImageView;
 import android.widget.TextView;
+import android.widget.TextView.BufferType;
 
 public class MainActivity extends ListActivity{
     
     private ProgressDialog m_ProgressDialog = null; 
     private ArrayList<Order> m_orders = null;
+    private ArrayList<twitUser> m_Users = null;
     private OrderAdapter m_adapter;
-    private Runnable viewOrders;
     
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
         m_orders = new ArrayList<Order>();
+        m_Users = new ArrayList<twitUser>();
         this.m_adapter = new OrderAdapter(this, R.layout.row, m_orders);
         setListAdapter(this.m_adapter);
         
@@ -61,16 +70,41 @@ public class MainActivity extends ListActivity{
             	  .setOAuthAccessTokenSecret("xPVu43tujVnqMJN53r2BsFdAYowTDmyMAujt76eln0k");
             	TwitterFactory tf = new TwitterFactory(cb.build());
             	Twitter twitter = tf.getInstance();
-                String user = "MattGray9";
+                Bitmap bitmap = null;
+                String user = "bsirach";
                 List<twitter4j.Status> statuses = twitter.getUserTimeline(user);
-                Order o1;
+                User twitUser = twitter.showUser(user);
+        		try {
+            		  bitmap = BitmapFactory.decodeStream((InputStream)new URL(twitUser.getBiggerProfileImageURL()).getContent());
+            		} catch (MalformedURLException e) {
+            		  e.printStackTrace();
+            		} catch (IOException e) {
+            		  e.printStackTrace();
+            		}
+        		twitUser curUser = new twitUser(twitUser.getScreenName(), twitUser.getFriendsCount(), twitUser.getFollowersCount(), twitUser.getStatusesCount(), bitmap);
+                m_Users.add(curUser);
+        		Order o1;
                 for (twitter4j.Status status : statuses) {
                    	if(status.isRetweet()){
                 		System.out.println("@" + status.getUser().getScreenName() + " - " + status.getText() + " -- " + status.getUser().getProfileImageURL());
-                    	o1 = new Order(status.getCurrentUserRetweetId(), status.getUser().getName(), status.getText(), status.getCreatedAt(), status.getUser().getProfileImageURL());
+                		try {
+                  		  bitmap = BitmapFactory.decodeStream((InputStream)new URL(status.getUser().getBiggerProfileImageURL()).getContent());
+                  		} catch (MalformedURLException e) {
+                  		  e.printStackTrace();
+                  		} catch (IOException e) {
+                  		  e.printStackTrace();
+                  		}
+                    	o1 = new Order(status.getCurrentUserRetweetId(), status.getUser().getName(), status.getText(), status.getCreatedAt(), bitmap);
                 	}else{
-                		System.out.println("@" + status.getUser().getScreenName() + " - " + status.getText()); 
-                		o1 = new Order(status.getId(), status.getUser().getName(), status.getText(), status.getCreatedAt(), status.getUser().getProfileImageURL());
+                		System.out.println("@" + status.getUser().getScreenName() + " - " + status.getText()); 	
+                		try {
+                			bitmap = BitmapFactory.decodeStream((InputStream)new URL(status.getUser().getBiggerProfileImageURL()).getContent());
+                  		} catch (MalformedURLException e) {
+                  		  e.printStackTrace();
+                  		} catch (IOException e) {
+                  		  e.printStackTrace();
+                  		}
+                		o1 = new Order(status.getId(), status.getUser().getName(), status.getText(), status.getCreatedAt(), bitmap);
                 	}
                     m_orders.add(o1);
                 }
@@ -90,6 +124,7 @@ public class MainActivity extends ListActivity{
             }
             m_ProgressDialog.dismiss();
             m_adapter.notifyDataSetChanged();
+        	setUserData(m_Users);
         }
 
         @Override
@@ -100,6 +135,40 @@ public class MainActivity extends ListActivity{
         protected void onProgressUpdate(Void... values) {
         }
     }   
+    
+    private void setUserData(ArrayList<twitUser> users){
+    	twitUser inUser = users.get(0);
+        ImageView userPic = (ImageView) findViewById(R.id.user_Icon);
+        TextView following = (TextView) findViewById(R.id.following);
+        TextView followers = (TextView) findViewById(R.id.followers);
+        TextView tweets = (TextView) findViewById(R.id.tweets);
+        System.out.println("User checking: " + inUser.getUserName());
+        if(userPic != null){
+            userPic.setImageBitmap(inUser.getUserPic());
+        } 
+        if(following != null){
+        	String first = inUser.getUserFollowing();
+        	String next = " Following";
+        	following.setText(first + next, BufferType.SPANNABLE);
+	        Spannable s = (Spannable)following.getText();
+	        int start = 0;
+	        int end = first.length();
+	        s.setSpan(new ForegroundColorSpan(Color.rgb(153, 217, 234)), start, end, Spannable.SPAN_EXCLUSIVE_EXCLUSIVE);
+        }
+        if(followers != null){
+        	String first = inUser.getUserFollowers();
+        	String next = " Followers";
+        	followers.setText(first + next, BufferType.SPANNABLE);
+	        Spannable s = (Spannable)followers.getText();
+	        int start = 0;
+	        int end = first.length();
+	        s.setSpan(new ForegroundColorSpan(Color.rgb(153, 217, 234)), start, end, Spannable.SPAN_EXCLUSIVE_EXCLUSIVE);
+        }
+        if(tweets != null){
+        	tweets.setTextColor(Color.rgb(153, 217, 234));
+        	tweets.setText(" " + inUser.getUserTweets() + " TWEETS");
+        }
+    }
     
     private class OrderAdapter extends ArrayAdapter<Order> {
 
@@ -121,6 +190,7 @@ public class MainActivity extends ListActivity{
         public long getItemId(final int position){
         	return position;
         }
+        
         public View getView(int position, View convertView, ViewGroup parent) {
                 View v = convertView;
                 if (v == null) {
@@ -128,29 +198,23 @@ public class MainActivity extends ListActivity{
                     v = vi.inflate(R.layout.row, null);
                 }
                 Order o = items.get(position);
+                TimeSpanConverter tSpan = new TimeSpanConverter();
                 if (o != null) {
                         TextView tt = (TextView) v.findViewById(R.id.toptext);
                         TextView bt = (TextView) v.findViewById(R.id.bottomtext);
                         TextView ts = (TextView) v.findViewById(R.id.timetext);
                         ImageView up = (ImageView) v.findViewById(R.id.icon);
-                        if (tt != null) {
+                        if (tt != null) {	
                               tt.setText(o.getOrderName());                            }
                         if(bt != null){
                               bt.setText(o.getOrderStatus());
                         }
                         if(ts != null){
-                        	  ts.setText(o.getOrderTime().toString());
+                        	  System.out.println(tSpan.toTimeSpanString(o.getOrderTime()));
+                        	  ts.setText(tSpan.toTimeSpanString(o.getOrderTime()));
                         }
                         if(up != null){
-                           	try
-                            {
-                                InputStream is = (InputStream) new URL(o.getOrderPic()).getContent();
-                                Drawable d = Drawable.createFromStream(is, "src name");
-                                up.setImageDrawable(d);
-                            }catch (Exception e) {
-                                System.out.println("Exc="+e);
-                                return null;
-                            }
+	                        up.setImageBitmap(o.getOrderPic());
                         }
                 }
                 return v;

@@ -2,18 +2,20 @@ package com.example.willowtweet;
 
 import java.util.Date;
 
+import android.graphics.Bitmap;
+
 public class Order {
     private long  id;
     private String orderName;
     private String orderStatus;
     private Date orderTime;
-    private String orderPic;
+    private Bitmap orderPic;
     
     public Order(){
     	
     }
     
-    public Order(final long id, final String orderName, final String orderStatus, final Date orderTime, final String orderPic){
+    public Order(final long id, final String orderName, final String orderStatus, final Date orderTime, final Bitmap orderPic){
     	this.id = id;
     	this.orderName = orderName;
     	this.orderStatus = orderStatus;
@@ -47,10 +49,10 @@ public class Order {
     public void setOrderTime(Date orderTime){
     	this.orderTime = orderTime;
     }
-    public String getOrderPic() {
+    public Bitmap getOrderPic() {
         return orderPic;
     }
-    public void setOrderPic(String orderPic) {
+    public void setOrderPic(Bitmap orderPic) {
         this.orderPic = orderPic;
     }
     @Override

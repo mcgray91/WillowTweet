@@ -2,7 +2,8 @@
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="fill_parent"
     android:layout_height="?android:attr/listPreferredItemHeight"
-    android:padding="6dip">
+    android:padding="6dip" >
+
     <ImageView
         android:id="@+id/icon"
         android:layout_width="wrap_content"
@@ -25,27 +26,33 @@
 	            android:layout_width="0dp"
 	            android:layout_height="wrap_content"
 	            android:layout_weight="1"
+	            android:ellipsize="marquee"
 	            android:gravity="center_vertical"
-	            android:singleLine="true" 
-            	android:ellipsize="marquee" />
+	            android:singleLine="true"
+	            android:textAppearance="?android:attr/textAppearanceMedium"
+	            android:textStyle="bold" />
 	        
 			<TextView
 			    android:id="@+id/timetext"
-			    android:layout_width="44dp"
+			    android:layout_width="80dp"
 			    android:layout_height="wrap_content"
 			    android:layout_gravity="right"
+			    android:ellipsize="marquee"
 			    android:gravity="right"
-			    android:ellipsize="marquee" />
+			    android:singleLine="true"
+			    android:textSize="12sp" />
 
 		</LinearLayout>
 
         <TextView
             android:id="@+id/bottomtext"
+            android:autoLink="web"
             android:layout_width="fill_parent"
             android:layout_height="wrap_content"
-            android:layout_weight="1"
             android:layout_gravity="bottom"
-            android:ellipsize="marquee" />
+            android:layout_weight="1"
+            android:ellipsize="marquee"
+            android:textAppearance="?android:attr/textAppearanceMedium" />
 
     </LinearLayout>
 </LinearLayout>
